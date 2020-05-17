@@ -1,0 +1,49 @@
+/**
+ * written by robert arnold
+ */
+
+package com.car.service.automobile.login
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import com.car.service.automobile.R
+import com.car.service.automobile.databinding.ActivityLoginBinding
+import com.car.service.automobile.main.MainActivity
+import com.car.service.automobile.main.ui.HomeActivity
+import com.car.service.automobile.repository.FirebaseInstance
+import com.google.firebase.auth.FirebaseAuth
+
+class LoginActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLoginBinding
+    lateinit var mAuth:FirebaseAuth
+    lateinit var viewModel: LoginViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(
+            this,
+            R.layout.activity_login
+        )
+
+        val firebaseInstance=FirebaseInstance()
+        val factory=LoginViewModelFactory(firebaseInstance)
+        viewModel=ViewModelProvider(this,factory).get(LoginViewModel::class.java)
+        mAuth=FirebaseAuth.getInstance()
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if(mAuth.currentUser!=null){
+            val intent=Intent(this,HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+    
+}

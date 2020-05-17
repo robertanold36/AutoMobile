@@ -1,0 +1,41 @@
+
+{
+  "project_info": {
+    "project_number": "728265936756",
+    "firebase_url": "https://auotmobileservice.firebaseio.com",
+    "project_id": "auotmobileservice",
+    "storage_bucket": "auotmobileservice.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:728265936756:android:dee4a996b7c0d7fa086621",
+        "android_client_info": {
+          "package_name": "com.car.service.automobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "728265936756-k61htf0kuju79inm5vfkaftugjn701bq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm1tZ1Br5z8SnMEHaqBk92pR4FdIeip6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "728265936756-k61htf0kuju79inm5vfkaftugjn701bq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
