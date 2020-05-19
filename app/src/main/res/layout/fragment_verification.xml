@@ -4,12 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
 
-    <data>
-
-        <variable
-            name="verificationViewModel"
-            type="com.car.service.automobile.login.LoginViewModel" />
-    </data>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,16 +21,14 @@
                 android:id="@+id/verify"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="128dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="32dp"
                 android:text="@string/verify"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/seconds"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_code"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintTop_toBottomOf="@+id/text_code" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/text_code"
@@ -44,8 +36,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="64dp"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginEnd="64dp"
+                android:layout_marginBottom="32dp"
                 app:layout_constraintBottom_toTopOf="@+id/verify"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -63,6 +56,30 @@
                     android:maxLength="6" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seconds" />
+
+            <TextView
+                android:id="@+id/seconds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:layout_constraintBottom_toTopOf="@+id/progressBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/verify" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

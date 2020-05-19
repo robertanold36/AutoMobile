@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="loginViewModel"
-            type="com.car.service.automobile.login.LoginViewModel"/>
+            type="com.car.service.automobile.login.LoginViewModel" />
     </data>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragment.LoginFragment"
         android:fillViewport="true"
         android:scrollbars="none"
-        >
+        tools:context=".fragment.LoginFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -64,7 +62,9 @@
                     android:id="@+id/phoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone" />
+                    android:inputType="phone"
+                    android:maxLength="9"
+                    android:text="@={loginViewModel.phoneNumber}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -91,7 +91,8 @@
                     android:id="@+id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLength="9" />
+                    android:maxLength="9"
+                    android:text="@={loginViewModel.name}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -114,13 +115,23 @@
                 android:id="@+id/signUp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:onClick="@{()->loginViewModel.login()}"
                 android:text="@string/signUp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/error_msg"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+            <TextView
+                android:id="@+id/error_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="64dp"
+                android:textColor="@android:color/holo_red_dark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

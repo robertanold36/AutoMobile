@@ -14,14 +14,12 @@ import com.car.service.automobile.databinding.FragmentVerificationBinding
 import com.car.service.automobile.login.LoginActivity
 import com.car.service.automobile.login.LoginViewModel
 import com.car.service.automobile.main.MainActivity
+import com.car.service.automobile.main.ui.HomeActivity
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 import java.util.concurrent.TimeUnit
 
@@ -38,7 +36,8 @@ class VerificationFragment : Fragment() {
     private val args: VerificationFragmentArgs by navArgs()
 
     var verificationNo: String = ""
-    lateinit var viewModel: LoginViewModel
+    private lateinit var viewModel: LoginViewModel
+
 
     var phoneNumber = ""
     var name = ""
@@ -61,7 +60,16 @@ class VerificationFragment : Fragment() {
         phoneNumber = args.phoneNumber
         name = args.name
 
+
         verifyPhoneNumber(phoneNumber)
+        CoroutineScope(Dispatchers.IO).launch {
+            for (i in 30 downTo 0){
+                delay(1000)
+                withContext(Dispatchers.Main){
+                    binding.seconds.text=i.toString()
+                }
+            }
+        }
 
         binding.verify.setOnClickListener {
             when {
@@ -84,6 +92,7 @@ class VerificationFragment : Fragment() {
     /**
      * function get called to verify the phone number passed from login fragment
      */
+
     private fun verifyPhoneNumber(phoneNumber: String) {
         verificationCallBack()
         activity?.let {
@@ -101,6 +110,7 @@ class VerificationFragment : Fragment() {
      * callback method for listening events if the verification of phone number is successfully
      * fail
      */
+
     private fun verificationCallBack() {
         mCallBack = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -126,6 +136,7 @@ class VerificationFragment : Fragment() {
      * function get called when the verification of number is successfully hence
      * the user can sign in
      */
+
     private fun signIn(credential: PhoneAuthCredential) {
         mAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
@@ -137,7 +148,7 @@ class VerificationFragment : Fragment() {
                         }
                         withContext(Dispatchers.Main) {
                             Toast.makeText(activity, "Successfully Login", Toast.LENGTH_LONG).show()
-                            val intent = Intent(activity, MainActivity::class.java)
+                            val intent = Intent(activity, HomeActivity::class.java)
                             startActivity(intent)
                             activity?.finish()
                         }
@@ -161,6 +172,7 @@ class VerificationFragment : Fragment() {
      * function get called up if the phone number is not verified automatically
      * hence user must enter the code that have been received
      */
+
     private fun authenticate(code: String) {
         val credential: PhoneAuthCredential = PhoneAuthProvider.getCredential(verificationNo, code)
         signIn(credential)

@@ -12,6 +12,7 @@ import com.car.service.automobile.R
 import com.car.service.automobile.databinding.FragmentLoginBinding
 import com.car.service.automobile.login.LoginActivity
 import com.car.service.automobile.login.LoginViewModel
+import com.car.service.automobile.resources.LoginListener
 
 /**
  * A simple [Fragment] subclass.
@@ -19,10 +20,15 @@ import com.car.service.automobile.login.LoginViewModel
  */
 
 
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(), LoginListener {
 
     lateinit var binding: FragmentLoginBinding
     lateinit var viewModel: LoginViewModel
+
+    private val phoneNumberKey = "phoneNumber"
+    private val nameKey = "name"
+    private val phoneCode = "+255"
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,40 +42,25 @@ class LoginFragment : Fragment() {
         )
 
         viewModel = (activity as LoginActivity).viewModel
-
-        binding.signUp.setOnClickListener {
-            when {
-                binding.phoneNumber.text.toString().isEmpty() -> {
-                    Toast.makeText(activity, "phone number input is Empty", Toast.LENGTH_SHORT)
-                        .show()
-                }
-                binding.name.text.toString().isEmpty() -> {
-                    Toast.makeText(activity, "name input is Empty", Toast.LENGTH_SHORT).show()
-
-                }
-                binding.phoneNumber.text.toString().length < 9 -> {
-                    Toast.makeText(activity, "phone number is less as required", Toast.LENGTH_SHORT)
-                        .show()
-
-                }
-                binding.phoneNumber.text.toString().length > 9 -> {
-                    Toast.makeText(activity, "phone number length is greater", Toast.LENGTH_SHORT)
-                        .show()
-
-                }
-                else -> {
-                    val bundle = Bundle()
-                    bundle.putString("phoneNumber", "+255" + binding.phoneNumber.text.toString())
-                    bundle.putString("name", binding.name.text.toString())
-                    findNavController().navigate(
-                        R.id.action_loginFragment_to_verificationFragment,
-                        bundle
-                    )
-                }
-            }
-        }
+        binding.loginViewModel=viewModel
+        viewModel.listener=this
 
         return binding.root
+    }
+
+    override fun onFail(message: String) {
+        binding.errorMsg.text=message
+    }
+
+    override fun onSuccess(phoneNumber: String, name: String) {
+        binding.errorMsg.text=""
+        val bundle = Bundle()
+        bundle.putString(phoneNumberKey,phoneCode + phoneNumber)
+        bundle.putString(nameKey, name)
+        findNavController().navigate(
+            R.id.action_loginFragment_to_verificationFragment,
+            bundle
+        )
     }
 
 }
