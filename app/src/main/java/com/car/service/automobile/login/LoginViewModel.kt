@@ -30,5 +30,4 @@ class LoginViewModel(app: Application, private val firebaseInstance: FirebaseIns
         }
     }
 
-
 }

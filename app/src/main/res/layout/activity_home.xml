@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.ui.HomeActivity">
+    tools:context=".main.ui.HomeActivity"
+    android:id="@+id/activity_home">
 
     <fragment
         android:id="@+id/homeMap"
@@ -25,7 +26,8 @@
         android:layout_marginEnd="16dp"
         android:background="@android:color/white"
         android:inputType="textAutoComplete"
-        android:paddingLeft="5dp"
+        android:paddingStart="5dp"
+        app:iconifiedByDefault="false"
         android:textColor="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

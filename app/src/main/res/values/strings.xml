@@ -26,4 +26,70 @@
     <string name="menu_slideshow">Slideshow</string>
 
     <string name="home_second">Home Second</string>
+    <string name="image">image</string>
+    <string name="emergency">Tatizo La Dharura</string>
+    <string name="known">chagua tatizo lako</string>
+    <string name="directly">Tafuta Fundi</string>
+    <string name="spare">Agiza kifaa</string>
+
+    <string-array name="carModel">
+
+        <item>ALFA ROMEO</item>
+        <item>AUDI</item>
+        <item>BENTLEY</item>
+        <item>BMW</item>
+        <item>CARDILLAC</item>
+        <item>CHEVROLET</item>
+        <item>CHRYYSLER</item>
+        <item>CITROEN</item>
+        <item>DACIA</item>
+        <item>DAEWOOD</item>
+        <item>DAF</item>
+        <item>DAF CF/XF</item>
+        <item>DAIHATSU</item>
+        <item>DODGE</item>
+        <item>ERF</item>
+        <item>FIAT</item>
+        <item>FODEN</item>
+        <item>FORD</item>
+        <item>FOTON</item>
+        <item>FREIGHTLINER</item>
+        <item>GMC</item>
+        <item>HINO</item>
+        <item>HONDA</item>
+        <item>HOWO</item>
+        <item>HUMMER</item>
+        <item>HYUNDAI</item>
+        <item>INFINITY</item>
+        <item>ISUZU</item>
+        <item>IVELO</item>
+        <item>JAGUAR</item>
+        <item>JEEP</item>
+        <item>KIA</item>
+        <item>LAND ROVER</item>
+        <item>LDV</item>
+        <item>LEXUS</item>
+        <item>LINCOLN</item>
+        <item>MAN</item>
+        <item>MAZDA</item>
+        <item>MERCEDES</item>
+        <item>MITSUBISHI</item>
+        <item>NISSAN</item>
+        <item>OPEL</item>
+        <item>PEUGEOT</item>
+        <item>PORSCHE</item>
+        <item>RENAULT</item>
+        <item>SAAB</item>
+        <item>SEAT</item>
+        <item>SMART</item>
+        <item>SSANGYONG</item>
+        <item>SUBARU</item>
+        <item>SUZUKI</item>
+        <item>TOYOTA</item>
+        <item>VAUXHALL</item>
+        <item>VOLKSWAGEN</item>
+        <item>VOLVO</item>
+
+    </string-array>
+
 </resources>
