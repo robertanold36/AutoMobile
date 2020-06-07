@@ -8,6 +8,7 @@
 
 package com.car.service.automobile.repository
 
+import com.car.service.automobile.api.GarageNearbyInstance
 import com.car.service.automobile.model.UserPOJO
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -26,4 +27,7 @@ class FirebaseInstance {
             UserPOJO(uid, name, phoneNumber)
         fStore.collection(collectionPath).document(uid).set(user).await()
     }
+
+    suspend fun getNearbyGarage(lat:Double,lon:Double)=
+         GarageNearbyInstance.api.getNearbyGarage(lat,lon)
 }
