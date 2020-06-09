@@ -29,8 +29,8 @@
     <string name="image">image</string>
     <string name="emergency">Tatizo</string>
     <string name="known">chagua tatizo lako</string>
-    <string name="directly">Tafuta Fundi</string>
-    <string name="spare">Agiza kifaa</string>
+    <string name="directly">Private</string>
+    <string name="spare">Kifaa</string>
     <string name="specifyLocation">Please specify your location</string>
     <string name="serverError">Internal server error</string>
     <string name="fail">We cant get garage for now</string>

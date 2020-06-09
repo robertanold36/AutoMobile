@@ -1,4 +1,4 @@
-package com.car.service.automobile
+package com.car.service.automobile.model
 
 data class GarageItem(
     val _id: String,

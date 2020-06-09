@@ -11,7 +11,7 @@ import com.car.service.automobile.R
 import com.car.service.automobile.databinding.FragmentLoginBinding
 import com.car.service.automobile.login.LoginActivity
 import com.car.service.automobile.login.LoginViewModel
-import com.car.service.automobile.resources.LoginListener
+import com.car.service.automobile.loginListener.LoginListener
 
 /**
  * A simple [Fragment] subclass.

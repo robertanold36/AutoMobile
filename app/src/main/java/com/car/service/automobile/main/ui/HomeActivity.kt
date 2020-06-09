@@ -21,9 +21,8 @@ import androidx.lifecycle.MutableLiveData
 import com.car.service.automobile.BuildConfig
 import com.car.service.automobile.R
 import com.car.service.automobile.Resource
-import com.car.service.automobile.garage
+import com.car.service.automobile.model.garage
 import com.car.service.automobile.main.MainActivity
-import com.car.service.automobile.repository.FirebaseInstance
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -39,9 +38,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -52,11 +48,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private val TAG = "HomeActivity"
     private val runningQorLater =
         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
-
-    var details: MutableLiveData<Resource<garage>> = MutableLiveData()
-    var detailsResponse: garage? = null
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

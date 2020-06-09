@@ -7,7 +7,7 @@ package com.car.service.automobile.login
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.car.service.automobile.repository.FirebaseInstance
-import com.car.service.automobile.resources.LoginListener
+import com.car.service.automobile.loginListener.LoginListener
 
 class LoginViewModel(app: Application, private val firebaseInstance: FirebaseInstance) :
     AndroidViewModel(app) {

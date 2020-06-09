@@ -1,4 +1,4 @@
-package com.car.service.automobile.resources
+package com.car.service.automobile.loginListener
 
 interface LoginListener {
     fun onFail(message: String)
