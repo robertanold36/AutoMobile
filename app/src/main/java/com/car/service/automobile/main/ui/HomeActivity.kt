@@ -17,11 +17,8 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
 import com.car.service.automobile.BuildConfig
 import com.car.service.automobile.R
-import com.car.service.automobile.Resource
-import com.car.service.automobile.model.garage
 import com.car.service.automobile.main.MainActivity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
