@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:name=".SystemApplication"
@@ -27,7 +28,7 @@
         </activity>
 
         <receiver
-            android:name=".receiver.GeoFenceReceiver"
+            android:name=".receiver.NotificationHandlerReceiver"
             android:enabled="true"
             android:exported="true" />
 
@@ -38,7 +39,7 @@
             android:value="@string/google_maps_key" />
 
 
-        <activity android:name=".login.LoginActivity"></activity>
+        <activity android:name=".login.LoginActivity" />
     </application>
 
 </manifest>

@@ -12,6 +12,7 @@
         android:fillViewport="true"
         tools:context=".login.LoginActivity"
         android:scrollbars="none"
+
         >
 
     <androidx.constraintlayout.widget.ConstraintLayout

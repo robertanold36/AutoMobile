@@ -12,6 +12,7 @@ import com.car.service.automobile.databinding.FragmentLoginBinding
 import com.car.service.automobile.login.LoginActivity
 import com.car.service.automobile.login.LoginViewModel
 import com.car.service.automobile.loginListener.LoginListener
+import com.car.service.automobile.utility.Constants.Companion.phoneCode
 
 /**
  * A simple [Fragment] subclass.
@@ -26,7 +27,7 @@ class LoginFragment : Fragment(), LoginListener {
 
     private val phoneNumberKey = "phoneNumber"
     private val nameKey = "name"
-    private val phoneCode = "+255"
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
