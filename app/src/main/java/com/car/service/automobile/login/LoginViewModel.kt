@@ -6,10 +6,10 @@ package com.car.service.automobile.login
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.car.service.automobile.repository.FirebaseInstance
+import com.car.service.automobile.repository.ApiRepository
 import com.car.service.automobile.loginListener.LoginListener
 
-class LoginViewModel(app: Application, private val firebaseInstance: FirebaseInstance) :
+class LoginViewModel(app: Application, private val apiRepository: ApiRepository) :
     AndroidViewModel(app) {
 
     var phoneNumber: String? = ""
@@ -17,7 +17,7 @@ class LoginViewModel(app: Application, private val firebaseInstance: FirebaseIns
     lateinit var listener: LoginListener
 
     suspend fun signUp(uid: String, name: String, phoneNumber: String) {
-        firebaseInstance.signUp(uid, name, phoneNumber)
+        apiRepository.signUp(uid, name, phoneNumber)
     }
 
     fun login() {

@@ -5,8 +5,12 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,10 +19,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.car.service.automobile.R
+import com.car.service.automobile.Resource
 import com.car.service.automobile.databinding.FragmentHomeBinding
 import com.car.service.automobile.main.MainActivity
 import com.car.service.automobile.main.MainViewModel
@@ -32,7 +38,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
@@ -63,10 +72,39 @@ open class HomeFragment : Fragment(), OnMapReadyCallback {
 
         mainViewModel = (activity as MainActivity).mainViewModel
 
-        mainViewModel.getLocationData().observe(requireActivity(), Observer {
+        mainViewModel.getLocationData().observe(viewLifecycleOwner, Observer { latlon ->
             val zoomLevel = 14f
-            val latLong = LatLng(it.latitude, it.longitude)
+            val latLong = LatLng(latlon.latitude, latlon.longitude)
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLong, zoomLevel))
+
+            CoroutineScope(Dispatchers.IO).launch {
+                mainViewModel.getAllNearByGarage(latlon.latitude, latlon.longitude)
+            }
+
+            mainViewModel.garageList.observe(viewLifecycleOwner, Observer { response ->
+                when (response) {
+                    is Resource.Success -> {
+                        response.data.let { garageList ->
+                            if (garageList != null) {
+                                val results=garageList.result
+                                 for(result in results){
+                                     val  lat=result.location.coordinates[0]
+                                     val lon=result.location.coordinates[1]
+                                        map.addMarker(
+                                            MarkerOptions().icon(
+                                                createMarker(
+                                                    requireContext(),
+                                                    R.drawable.ic_car_repair
+                                                )
+                                            ).position(LatLng(lat,lon)).visible(true)
+                                        )
+
+                                }
+                            }
+                        }
+                    }
+                }
+            })
 
         })
 
@@ -75,7 +113,7 @@ open class HomeFragment : Fragment(), OnMapReadyCallback {
             childFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        val carModel =resources.getStringArray(R.array.carModel)
+        val carModel = resources.getStringArray(R.array.carModel)
 
 
         binding.btnProblem.setOnClickListener {
@@ -117,8 +155,8 @@ open class HomeFragment : Fragment(), OnMapReadyCallback {
                 requestLocationPermission()
             }
         }
-
         return binding.root
+
     }
 
     override fun onStart() {
@@ -127,6 +165,14 @@ open class HomeFragment : Fragment(), OnMapReadyCallback {
             checkLocationSettings()
         } else {
             requestLocationPermission()
+
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isPermissionGranted()) {
+            Log.e(TAG, "Application is in background and location permission is enabled")
         }
     }
 
@@ -304,6 +350,25 @@ open class HomeFragment : Fragment(), OnMapReadyCallback {
                 }
             }
         }
+    }
+
+    private fun createMarker(context: Context, vectorIcon: Int): BitmapDescriptor {
+        val vectorDrawable: Drawable? = ContextCompat.getDrawable(context, vectorIcon)
+        vectorDrawable?.setBounds(
+            0,
+            0,
+            vectorDrawable.intrinsicWidth,
+            vectorDrawable.intrinsicHeight
+        )
+        val bitmap = Bitmap.createBitmap(
+            vectorDrawable!!.minimumWidth,
+            vectorDrawable.intrinsicHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(bitmap)
+        vectorDrawable.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 
 }

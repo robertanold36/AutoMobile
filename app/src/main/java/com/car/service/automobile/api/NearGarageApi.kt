@@ -1,6 +1,7 @@
 package com.car.service.automobile.api
 
 import com.car.service.automobile.model.Garage
+import com.car.service.automobile.model.GarageResult
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -12,7 +13,6 @@ interface NearGarageApi {
     suspend fun getNearbyGarage(
         @Query("lat") lat:Double,
         @Query("lon") lon:Double
-    ):Response<Garage>
-
+    ):Response<GarageResult>
 
 }
