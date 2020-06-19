@@ -46,6 +46,7 @@ import com.google.android.gms.location.LocationServices
             latitude = location.latitude,
             longitude = location.longitude
         )
+
     }
 
     @SuppressLint("MissingPermission")
