@@ -38,6 +38,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,16 +71,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        mainViewModel.getLocationData().observe(this, Observer { latlon ->
-
-            CoroutineScope(Dispatchers.IO).launch {
-                mainViewModel.getAllNearByGarage(latlon.latitude, latlon.longitude)
-
-            }
-            val latLong = LatLng(latlon.latitude, latlon.longitude)
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLong, 12f))
-
-        })
+        getNearbyGarage()
 
         val carModel = resources.getStringArray(R.array.carModel)
 
@@ -103,31 +95,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-
     }
 
     override fun onStart() {
         super.onStart()
-        requestLocationPermission()
-
+        if(isPermissionGranted()){
+            checkLocationSettings()
+        }else{
+            requestLocationPermission()
+        }
     }
-
-//    override fun onResume() {
-//        super.onResume()
-//
-//        if (isPermissionGranted()) {
-//            if (!mainViewModel.isGpsOrNetworkEnabled()) {
-//                Snackbar.make(
-//                    binding.activityMain,
-//                    "Please Enable Your Pickup location",
-//                    Snackbar.LENGTH_INDEFINITE
-//                ).setAction("Ok") {
-//                    checkLocationSettings()
-//                }.show()
-//            }
-//        }
-//
-//    }
 
 
     @SuppressLint("MissingPermission")
@@ -144,7 +121,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     Activity.RESULT_OK -> {
                         //map.isMyLocationEnabled=true
                         Log.e(TAG, "location setting enabled")
-                        getNearbyGarage()
+                        startupActivity()
                     }
                     Activity.RESULT_CANCELED -> {
                         Snackbar.make(
@@ -164,10 +141,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     override fun onMapReady(p0: GoogleMap?) {
         map = p0!!
-        if (isPermissionGranted()) {
-            map.isMyLocationEnabled = true
-        }
-
+        enableMyLocation()
+        moveCamera()
         setMapStyle(map)
     }
 
@@ -192,13 +167,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 requestLocationPermission()
             }.show()
 
-        }else{
-            if(mainViewModel.isGpsOrNetworkEnabled()){
-                map.isMyLocationEnabled=true
-            }else{
-                checkLocationSettings()
-            }
-
+        } else {
+            checkLocationSettings()
         }
     }
 
@@ -292,7 +262,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         task.addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.e(TAG, "Location setting are enabled to true")
-                getNearbyGarage()
+                startupActivity()
             }
         }
 
@@ -369,6 +339,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableMyLocation() {
+        if (isPermissionGranted()) {
+            map.isMyLocationEnabled = true
+        } else {
+            requestLocationPermission()
+        }
+    }
+
+    private fun moveCamera() {
+        mainViewModel.getLocationData().observe(this, Observer { latlon ->
+
+            CoroutineScope(Dispatchers.IO).launch {
+                mainViewModel.getAllNearByGarage(latlon.latitude, latlon.longitude)
+
+            }
+            val latLong = LatLng(latlon.latitude, latlon.longitude)
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLong, 12f))
+
+        })
+    }
+
+    private fun startupActivity() {
+        binding.activityMain.invalidate()
     }
 
 }
