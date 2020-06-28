@@ -9,7 +9,19 @@
         android:id="@+id/homeFragment"
         android:name="com.car.service.automobile.fragment.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
-
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_requestFragment"
+            app:destination="@id/requestFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/requestFragment"
+        android:name="com.car.service.automobile.fragment.RequestFragment"
+        android:label="fragment_request"
+        tools:layout="@layout/fragment_request" >
+        <argument
+            android:name="workshopData"
+            app:argType="com.car.service.automobile.model.Result" />
+    </fragment>
 
 </navigation>

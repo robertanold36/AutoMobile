@@ -14,6 +14,7 @@ import com.car.service.automobile.databinding.FragmentVerificationBinding
 import com.car.service.automobile.login.LoginActivity
 import com.car.service.automobile.login.LoginViewModel
 import com.car.service.automobile.main.MainActivity
+import com.car.service.automobile.utility.NetworkUtility.Companion.isPermissionGranted
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -146,10 +147,11 @@ class VerificationFragment : Fragment() {
                             viewModel.signUp(uid, name, phoneNumber)
                         }
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(activity, "Successfully Login", Toast.LENGTH_LONG).show()
-                            val intent = Intent(activity, MainActivity::class.java)
-                            startActivity(intent)
-                            activity?.finish()
+                                Toast.makeText(activity, "Successfully Login", Toast.LENGTH_LONG).show()
+                                val intent = Intent(activity, MainActivity::class.java)
+                                startActivity(intent)
+                                activity?.finish()
+
                         }
                     }
 

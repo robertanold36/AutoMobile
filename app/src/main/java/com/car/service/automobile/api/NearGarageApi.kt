@@ -2,6 +2,7 @@ package com.car.service.automobile.api
 
 import com.car.service.automobile.model.Garage
 import com.car.service.automobile.model.GarageResult
+import com.car.service.automobile.model.WorkShopResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -14,5 +15,11 @@ interface NearGarageApi {
         @Query("lat") lat:Double,
         @Query("lon") lon:Double
     ):Response<GarageResult>
+
+    @GET("workshop/requestWorkshop")
+    suspend fun requestWorkShop(
+        @Query("workshopID") workshopID:String
+    ):Response<WorkShopResponse>
+
 
 }

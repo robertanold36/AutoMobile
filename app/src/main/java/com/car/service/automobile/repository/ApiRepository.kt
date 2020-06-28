@@ -22,13 +22,16 @@ class ApiRepository {
     private val collectionPath = "clients"
 
 
-    suspend fun signUp(uid:String, name:String, phoneNumber:String){
-        val user=
+    suspend fun signUp(uid: String, name: String, phoneNumber: String) {
+        val user =
             UserPOJO(uid, name, phoneNumber)
         fStore.collection(collectionPath).document(uid).set(user).await()
     }
 
-    suspend fun getAllNearbyGarage(lat:Double,lon: Double)=GarageNearbyInstance.api
-        .getNearbyGarage(lat,lon)
+    suspend fun getAllNearbyGarage(lat: Double, lon: Double) = GarageNearbyInstance.api
+        .getNearbyGarage(lat, lon)
+
+    suspend fun getNearByWorkshop(workshopID: String) =
+        GarageNearbyInstance.api.requestWorkShop(workshopID)
 
 }
