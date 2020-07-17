@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.car.service.automobile.R
-import com.car.service.automobile.main.MainActivity
-
 
 
 class SplashScreen : AppCompatActivity() {

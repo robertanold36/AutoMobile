@@ -13,8 +13,7 @@ import com.car.service.automobile.R
 import com.car.service.automobile.databinding.FragmentVerificationBinding
 import com.car.service.automobile.login.LoginActivity
 import com.car.service.automobile.login.LoginViewModel
-import com.car.service.automobile.main.MainActivity
-import com.car.service.automobile.utility.NetworkUtility.Companion.isPermissionGranted
+import com.car.service.automobile.main.ui.MainActivity
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential

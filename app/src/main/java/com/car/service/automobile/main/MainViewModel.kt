@@ -8,14 +8,16 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
 import android.os.Build
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.car.service.automobile.Resource
+import com.car.service.automobile.utility.Resource
 import com.car.service.automobile.SystemApplication
 import com.car.service.automobile.model.GarageResult
 import com.car.service.automobile.model.WorkShopResponse
 import com.car.service.automobile.repository.ApiRepository
+import com.car.service.automobile.utility.Listener
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.IOException
@@ -26,8 +28,7 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
     private val locationUpdate = LocationTracking(app)
     val garageList: MutableLiveData<Resource<GarageResult>> = MutableLiveData()
     var garageListResponse: GarageResult? = null
-    val workshop: MutableLiveData<Resource<WorkShopResponse>> = MutableLiveData()
-    var workShopResponse: WorkShopResponse? = null
+    lateinit var listener:Listener
 
 
     fun getLocationData() = locationUpdate
@@ -83,33 +84,36 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
     }
 
     fun requestWorkshop(workshopID: String) = viewModelScope.launch {
-        workshop.postValue(Resource.Loading())
+        listener.onLoading()
         try {
             if (isConnectedToInternet()) {
                 val response = apiRepository.getNearByWorkshop(workshopID)
-                workshop.postValue(handleWorkshopResponse(response))
+                handleWorkshopResponse(response)
 
             } else {
-                workshop.postValue(Resource.Error("No Internet connection"))
+                listener.onError("No Internet connection")
             }
 
         } catch (t: Throwable) {
             when (t) {
-                is IOException -> workshop.postValue(Resource.Error("Network Failure"))
-                else -> workshop.postValue(Resource.Error("Internal server error"))
+                is IOException -> listener.onError("Network Failure")
+                else -> listener.onError("Internal server error")
             }
         }
     }
 
-    private fun handleWorkshopResponse(response: Response<WorkShopResponse>): Resource<WorkShopResponse> {
-        if(response.isSuccessful){
+    private fun handleWorkshopResponse(response: Response<WorkShopResponse>){
+        if (response.isSuccessful) {
             response.body().let {
-               workShopResponse=it
-                return Resource.Success(workShopResponse)
-            }
-        }else{
+                val workshopInformation=it?.WorkShopResponse
+                workshopInformation?.get(0)?.let {it1->
+                    listener.onSuccess(it1)
+                }
+                Log.e("MainActivity",it.toString())
 
-            return Resource.Error("Fail to get workshop")
+            }
+        } else {
+            listener.onError("Fail to get workshop")
         }
     }
 

@@ -1,7 +1,6 @@
 package com.car.service.automobile.di
 
 import android.content.Context
-import com.car.service.automobile.login.LoginSubComponent
 import dagger.BindsInstance
 import dagger.Component
 
@@ -13,5 +12,4 @@ interface AppComponent {
         fun create(@BindsInstance context: Context):AppComponent
     }
 
-    fun loginSubComponent():LoginSubComponent
 }

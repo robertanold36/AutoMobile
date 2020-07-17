@@ -1,4 +1,4 @@
-package com.car.service.automobile.main
+package com.car.service.automobile.main.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -17,14 +17,20 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.car.service.automobile.R
-import com.car.service.automobile.Resource
+import com.car.service.automobile.utility.Resource
+import com.car.service.automobile.main.MainViewModel
+import com.car.service.automobile.main.MainViewModelFactory
+import com.car.service.automobile.model.GarageResult
+import com.car.service.automobile.model.WorkShopResponseX
 import com.car.service.automobile.repository.ApiRepository
+import com.car.service.automobile.utility.Listener
 import com.car.service.automobile.utility.NetworkUtility.Companion.isPermissionGranted
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
@@ -49,7 +55,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     lateinit var mainViewModel: MainViewModel
     private val TAG = "MainActivity"
@@ -60,17 +66,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private val runningQorLater =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
-
+    lateinit var coordinatorLayout: CoordinatorLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setSupportActionBar(toolbar)
-
+        coordinatorLayout = binding.activityMain
         val apiRepository = ApiRepository()
-        val mainViewModelFactory = MainViewModelFactory(apiRepository, application)
+        val mainViewModelFactory =
+            MainViewModelFactory(
+                apiRepository,
+                application
+            )
         mainViewModel = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
         binding.mainViewModel = mainViewModel
+        mainViewModel.listener = this
 
         mapFragment =
             supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
@@ -85,7 +96,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (isPermissionGranted(this)) {
                 if (mainViewModel.isGpsOrNetworkEnabled()) {
 
-                    requestWorkshop()
+                    observeWorkshops()
 
                 } else {
                     checkLocationSettings()
@@ -94,6 +105,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 requestLocationPermission()
             }
         }
+
+
     }
 
     override fun onStart() {
@@ -121,7 +134,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                     Activity.RESULT_CANCELED -> {
                         Snackbar.make(
-                            binding.activityMain,
+                            coordinatorLayout,
                             "Please Turn On Device Location",
                             Snackbar.LENGTH_INDEFINITE
                         ).setAction("Ok") {
@@ -223,8 +236,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(this, "result canceled", Toast.LENGTH_SHORT).show()
 
                 Snackbar.make(
-                    binding.activityMain,
-                    "Please Turn On Device Location To find Your pickup location",
+                    coordinatorLayout,
+                    "Please Turn On Device location",
                     Snackbar.LENGTH_INDEFINITE
                 ).setAction("Ok") {
                     checkLocationSettings()
@@ -304,7 +317,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 is Resource.Error -> {
                     response.message.let {
                         if (it != null) {
-                            Snackbar.make(binding.activityMain, it, Snackbar.LENGTH_INDEFINITE)
+                            Snackbar.make(coordinatorLayout, it, Snackbar.LENGTH_INDEFINITE)
                                 .setAction("Try again") {
                                     getNearbyGarage()
                                 }
@@ -341,84 +354,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    private fun requestWorkshop() {
+    private fun observeWorkshops() {
+
         mainViewModel.garageList.observe(this, Observer { resource ->
             when (resource) {
                 is Resource.Success -> {
                     resource.data.let {
                         if (it != null) {
-
-                            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
-                                val workshopData = it.result[0]
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    mainViewModel.requestWorkshop(workshopData.workshopID)
-
-                                    withContext(Dispatchers.Main) {
-                                        mainViewModel.workshop.observe(
-                                            this@MainActivity,
-                                            Observer { response ->
-                                                when (response) {
-                                                    is Resource.Loading -> {
-                                                        pb.visibility = View.VISIBLE
-                                                    }
-
-                                                    is Resource.Success -> {
-                                                        pb.visibility = View.INVISIBLE
-                                                        response.data.let { result ->
-                                                            if (result != null) {
-                                                                workshopName.text = result.name
-                                                                workshopRate.text =
-                                                                    result.CompanyReview.toString()
-                                                                phoneNumber.text = result.contacts
-                                                                mainViewModel.workshop.removeObservers(
-                                                                    this@MainActivity
-                                                                )
-                                                            } else {
-                                                                Snackbar.make(
-                                                                    fragment_request,
-                                                                    "Hakuna Garage ya karibu",
-                                                                    Snackbar.LENGTH_LONG
-                                                                ).show()
-                                                            }
-                                                        }
-                                                    }
-                                                    is Resource.Error -> {
-                                                        pb.visibility = View.INVISIBLE
-                                                        resource.message.let { error ->
-                                                            Snackbar.make(
-                                                                fragment_request,
-                                                                "$error",
-                                                                Snackbar.LENGTH_LONG
-                                                            ).show()
-
-                                                        }
-                                                    }
-                                                }
-                                            })
-                                    }
-                                }
-
-
-                            } else {
-                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                            }
-
+                            requestWorkshop(it)
                         } else {
                             Snackbar.make(
-                                binding.activityMain,
-                                "There is no garage at your location",
+                                coordinatorLayout,
+                                "There is no garage at your bound",
                                 Snackbar.LENGTH_LONG
                             ).show()
                         }
                     }
+
                     mainViewModel.garageList.removeObservers(this)
                 }
+
                 is Resource.Error -> {
                     resource.message.let {
                         if (it != null) {
-                            Snackbar.make(binding.activityMain, it, Snackbar.LENGTH_INDEFINITE)
+                            Snackbar.make(coordinatorLayout, it, Snackbar.LENGTH_INDEFINITE)
                                 .setAction("Try again") {
                                     getNearbyGarage()
                                 }
@@ -430,6 +389,75 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         })
+    }
+
+
+    private fun requestWorkshop(garageResult: GarageResult) {
+
+        try {
+            val workshopData = garageResult.result[0]
+
+            CoroutineScope(Dispatchers.IO).launch {
+                Log.e(TAG, workshopData.toString())
+                mainViewModel.requestWorkshop(workshopData.workshopID)
+
+                withContext(Dispatchers.Main) {
+
+                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                        bottomSheetBehavior.state =
+                            BottomSheetBehavior.STATE_EXPANDED
+
+                    } else {
+
+                        bottomSheetBehavior.state =
+                            BottomSheetBehavior.STATE_COLLAPSED
+                    }
+
+                }
+
+            }
+
+        } catch (e: NullPointerException) {
+            Snackbar.make(
+                coordinatorLayout,
+                "There is no garage at your location bro",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+
+    }
+
+    override fun onLoading() {
+        pb.visibility = View.VISIBLE
+    }
+
+    override fun onError(message: String) {
+        pb.visibility = View.INVISIBLE
+
+        Snackbar.make(
+            activity_main,
+            message,
+            Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    override fun onSuccess(data: WorkShopResponseX) {
+
+            pb.visibility = View.INVISIBLE
+
+            workshopName.text =
+                data.name
+
+            workshopRate.apply {
+                numStars=data.CompanyReview
+                isIndicator
+
+            }
+
+            phoneNumber.text =
+                data.contacts
+
+
     }
 
 }
