@@ -69,8 +69,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     lateinit var coordinatorLayout: CoordinatorLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
         setSupportActionBar(toolbar)
         coordinatorLayout = binding.activityMain
         val apiRepository = ApiRepository()

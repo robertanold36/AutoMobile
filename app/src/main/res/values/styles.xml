@@ -11,8 +11,7 @@
     </style>
 
     <style name="AppTheme.NoActionBar">
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowIsTranslucent">true</item>
+       <item name="android:windowBackground">@drawable/splash</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
