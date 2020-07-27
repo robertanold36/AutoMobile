@@ -19,7 +19,7 @@ class LocationTracking(context: Context) : MutableLiveData<LatLongitude>() {
     companion object {
         val locationRequest: LocationRequest = LocationRequest.create().apply {
             interval = 1000
-            fastestInterval = 5000
+            fastestInterval = 150000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
     }

@@ -12,12 +12,19 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.car.service.automobile.utility.Resource
 import com.car.service.automobile.SystemApplication
 import com.car.service.automobile.model.GarageResult
+import com.car.service.automobile.model.PushNotification
+import com.car.service.automobile.model.UserPOJO
 import com.car.service.automobile.model.WorkShopResponse
 import com.car.service.automobile.repository.ApiRepository
+import com.car.service.automobile.utility.Constants
 import com.car.service.automobile.utility.Listener
+import com.car.service.automobile.utility.Resource
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.IOException
@@ -28,7 +35,15 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
     private val locationUpdate = LocationTracking(app)
     val garageList: MutableLiveData<Resource<GarageResult>> = MutableLiveData()
     var garageListResponse: GarageResult? = null
-    lateinit var listener:Listener
+    lateinit var listener: Listener
+    val userDetail= MutableLiveData<UserPOJO>()
+    private val fStore: FirebaseFirestore by lazy {
+        FirebaseFirestore.getInstance()
+    }
+    private var job=Job()
+    private val ioScope= CoroutineScope(Dispatchers.IO+job)
+
+
 
 
     fun getLocationData() = locationUpdate
@@ -36,6 +51,19 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
     private var gpsEnabled = false
     private var networkEnabled = false
 
+    fun getUserDetail(uid:String){
+        ioScope.launch {
+            fStore.collection(Constants.COLLECTION_CLIENT).document(uid).get().addOnSuccessListener {
+                val uid=it.get("uid").toString()
+                val name=it.get("name").toString()
+                val phoneNumber=it.get("phoneNumber").toString()
+
+                val userPOJO=UserPOJO(uid,name,phoneNumber)
+                Log.e("MainActivity", userPOJO.toString())
+                userDetail.value=userPOJO
+            }
+        }
+    }
 
     fun isGpsOrNetworkEnabled(): Boolean {
 
@@ -51,6 +79,24 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
         } catch (e: Exception) {
         }
         return gpsEnabled && networkEnabled
+    }
+
+    fun sendNotification(pushNotification: PushNotification) = viewModelScope.launch {
+        try {
+            if (isConnectedToInternet()) {
+                val response = apiRepository.sendNotification(pushNotification)
+                if (response.isSuccessful) {
+                    Log.e("MainActivity", "success")
+                } else {
+                    Log.e("MainActivity", "fail")
+
+                }
+            } else {
+
+            }
+        } catch (e: Exception) {
+
+        }
     }
 
 
@@ -102,14 +148,14 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
         }
     }
 
-    private fun handleWorkshopResponse(response: Response<WorkShopResponse>){
+    private fun handleWorkshopResponse(response: Response<WorkShopResponse>) {
         if (response.isSuccessful) {
             response.body().let {
-                val workshopInformation=it?.WorkShopResponse
-                workshopInformation?.get(0)?.let {it1->
+                val workshopInformation = it?.WorkShopResponse
+                workshopInformation?.get(0)?.let { it1 ->
                     listener.onSuccess(it1)
                 }
-                Log.e("MainActivity",it.toString())
+                Log.e("MainActivity", it.toString())
 
             }
         } else {
@@ -144,6 +190,11 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
             }
         }
         return false
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        job.cancel()
     }
 
 }

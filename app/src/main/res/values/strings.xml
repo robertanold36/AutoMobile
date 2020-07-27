@@ -76,9 +76,9 @@
         <item>LINCOLN</item>
         <item>MAN</item>
         <item>MAZDA</item>
-        <item>MERCEDES</item>
+        <item>Mercedes Benz</item>
         <item>MITSUBISHI</item>
-        <item>NISSAN</item>
+        <item>Nissan</item>
         <item>OPEL</item>
         <item>PEUGEOT</item>
         <item>PORSCHE</item>
@@ -89,7 +89,7 @@
         <item>SSANGYONG</item>
         <item>SUBARU</item>
         <item>SUZUKI</item>
-        <item>TOYOTA</item>
+        <item>Toyota</item>
         <item>VAUXHALL</item>
         <item>VOLKSWAGEN</item>
         <item>VOLVO</item>
@@ -194,5 +194,6 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="breakdown">BreakDown</string>
 
 </resources>

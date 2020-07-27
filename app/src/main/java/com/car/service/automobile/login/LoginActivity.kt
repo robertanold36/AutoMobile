@@ -22,6 +22,7 @@ class LoginActivity : AppCompatActivity() {
     lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(
             this,
@@ -37,7 +38,6 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-
         if(mAuth.currentUser!=null){
             val intent=Intent(this,
                 MainActivity::class.java)

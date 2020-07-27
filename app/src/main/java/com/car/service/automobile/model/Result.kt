@@ -6,5 +6,7 @@ data class Result(
     val _id: String,
     val location: Location,
     val state: String,
-    val workshopID: String
+    val workshopID: String,
+    val VehicleBrands:List<String>
+
 ):Serializable

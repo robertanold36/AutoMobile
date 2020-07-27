@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,14 +25,19 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.car.service.automobile.R
-import com.car.service.automobile.utility.Resource
 import com.car.service.automobile.main.MainViewModel
 import com.car.service.automobile.main.MainViewModelFactory
 import com.car.service.automobile.model.GarageResult
+import com.car.service.automobile.model.NotificationData
+import com.car.service.automobile.model.PushNotification
 import com.car.service.automobile.model.WorkShopResponseX
 import com.car.service.automobile.repository.ApiRepository
+import com.car.service.automobile.utility.Constants.Companion.COLLECTION
+import com.car.service.automobile.utility.Constants.Companion.EMAIL
+import com.car.service.automobile.utility.Constants.Companion.TOKEN
 import com.car.service.automobile.utility.Listener
 import com.car.service.automobile.utility.NetworkUtility.Companion.isPermissionGranted
+import com.car.service.automobile.utility.Resource
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -46,6 +52,8 @@ import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.fragment_request.*
@@ -68,8 +76,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     lateinit var coordinatorLayout: CoordinatorLayout
 
+    private val fStore: FirebaseFirestore by lazy {
+        FirebaseFirestore.getInstance()
+    }
+    private val fAuth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme)
+
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
@@ -92,7 +107,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         bottomSheetBehavior = BottomSheetBehavior.from(fragment_request)
         bottomSheetBehavior.peekHeight = 0
 
-        val carModel = resources.getStringArray(R.array.carModel)
 
         btn_problem.setOnClickListener {
             if (isPermissionGranted(this)) {
@@ -321,7 +335,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
                         if (it != null) {
                             Snackbar.make(coordinatorLayout, it, Snackbar.LENGTH_INDEFINITE)
                                 .setAction("Try again") {
-                                    getNearbyGarage()
+                                    moveCamera()
                                 }
                                 .show()
                             mainViewModel.garageList.removeObservers(this)
@@ -393,31 +407,98 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         })
     }
 
+    private fun sendNotification(email: String) {
+
+        val uid = fAuth.currentUser?.uid
+        if (uid != null) {
+            Log.e(TAG, uid)
+            mainViewModel.getUserDetail(uid)
+
+            mainViewModel.userDetail.observe(this, Observer { user ->
+                Log.e(TAG, user.toString())
+                CoroutineScope(Dispatchers.IO).launch {
+                    fStore.collection(COLLECTION).whereEqualTo(EMAIL, email).get()
+                        .addOnSuccessListener {
+                            for (document in it.documents) {
+                                val token = document.get(TOKEN).toString()
+                                Log.e(TAG, token)
+                                val notificationData =
+                                    NotificationData("Request Service", user.phoneNumber, user.name)
+                                val pushNotification = PushNotification(notificationData, token)
+                                mainViewModel.sendNotification(pushNotification)
+                            }
+                        }
+                }
+            })
+        }
+
+    }
 
     private fun requestWorkshop(garageResult: GarageResult) {
 
+
         try {
-            val workshopData = garageResult.result[0]
+            var selected: String? = null
+            val carModel = resources.getStringArray(R.array.carModel)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                Log.e(TAG, workshopData.toString())
-                mainViewModel.requestWorkshop(workshopData.workshopID)
+            val alertDialog = AlertDialog.Builder(this@MainActivity)
+            alertDialog.setTitle("Car Model")
+            alertDialog.setCancelable(false)
 
-                withContext(Dispatchers.Main) {
+            alertDialog.setPositiveButton("Yes") { _, item ->
+                when (item) {
+                    item -> {
+                        for (workshopData in garageResult.result) {
+                            if (workshopData.VehicleBrands.contains(selected)) {
 
-                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                        bottomSheetBehavior.state =
-                            BottomSheetBehavior.STATE_EXPANDED
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    Log.e(TAG, workshopData.toString())
+                                    mainViewModel.requestWorkshop(workshopData.workshopID)
 
-                    } else {
+                                    withContext(Dispatchers.Main) {
 
-                        bottomSheetBehavior.state =
-                            BottomSheetBehavior.STATE_COLLAPSED
+                                        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                                            bottomSheetBehavior.state =
+                                                BottomSheetBehavior.STATE_EXPANDED
+
+                                        } else {
+
+                                            bottomSheetBehavior.state =
+                                                BottomSheetBehavior.STATE_COLLAPSED
+                                        }
+
+                                    }
+
+                                }
+                                break
+                            } else {
+                                Snackbar.make(
+                                    coordinatorLayout,
+                                    "Cant fix your car type",
+                                    Snackbar.LENGTH_LONG
+                                ).show()
+                            }
+                        }
                     }
-
                 }
 
             }
+
+            alertDialog.setNeutralButton("Cancel") { _, _ ->
+                Toast.makeText(this@MainActivity, "You Cancel", Toast.LENGTH_LONG)
+                    .show()
+            }
+
+            alertDialog.setSingleChoiceItems(carModel, checkedItem) { _, item ->
+                when (item) {
+                    item -> {
+                        selected = carModel[item]
+
+                    }
+                }
+            }
+            val mAlertDialog = alertDialog.create()
+            mAlertDialog.show()
 
         } catch (e: NullPointerException) {
             Snackbar.make(
@@ -445,20 +526,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     override fun onSuccess(data: WorkShopResponseX) {
 
-            pb.visibility = View.INVISIBLE
+        pb.visibility = View.INVISIBLE
 
-            workshopName.text =
-                data.name
+        sendNotification(data.email)
 
-            workshopRate.apply {
-                numStars=data.CompanyReview
-                isIndicator
+        workshopName.text =
+            data.name
 
-            }
+        workshopRate.apply {
+            numStars = data.CompanyReview
+            isIndicator
 
-            phoneNumber.text =
-                data.contacts
+        }
 
+        phoneNumber.text =
+            data.contacts
 
     }
 

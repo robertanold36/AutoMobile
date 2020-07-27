@@ -9,6 +9,8 @@
 package com.car.service.automobile.repository
 
 import com.car.service.automobile.api.GarageNearbyInstance
+import com.car.service.automobile.api.GarageNearbyInstance.Companion.notificationApi
+import com.car.service.automobile.model.PushNotification
 import com.car.service.automobile.model.UserPOJO
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -33,5 +35,8 @@ class ApiRepository {
 
     suspend fun getNearByWorkshop(workshopID: String) =
         GarageNearbyInstance.api.requestWorkShop(workshopID)
+
+    suspend fun sendNotification(pushNotification: PushNotification) =
+        notificationApi.postNotification(pushNotification)
 
 }
