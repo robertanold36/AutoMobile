@@ -441,7 +441,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
             var selected: String? = null
             val carModel = resources.getStringArray(R.array.carModel)
 
-            val alertDialog = AlertDialog.Builder(this@MainActivity)
+            val alertDialog = AlertDialog.Builder(applicationContext)
             alertDialog.setTitle("Car Model")
             alertDialog.setCancelable(false)
 

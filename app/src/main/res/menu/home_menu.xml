@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/setting"
+        android:title="setting" />
+
+    <item
+        android:id="@+id/privacy"
+        android:title="privacy"/>
+
+
+    <item
+        android:id="@+id/help"
+        android:title="Help"/>
+
+    <item
+        android:id="@+id/feedback"
+        android:title="Feedback"/>
+
+    <item
+        android:id="@+id/rate"
+        android:title="Rate"/>
+
+</menu>
