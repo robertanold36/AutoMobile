@@ -3,7 +3,6 @@ package com.car.service.automobile.main
 
 import android.app.Application
 import android.content.Context
-import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
@@ -22,10 +21,7 @@ import com.car.service.automobile.utility.Constants
 import com.car.service.automobile.utility.Listener
 import com.car.service.automobile.utility.Resource
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.Response
 import java.io.IOException
 
@@ -36,83 +32,74 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
     val garageList: MutableLiveData<Resource<GarageResult>> = MutableLiveData()
     var garageListResponse: GarageResult? = null
     lateinit var listener: Listener
-    val userDetail= MutableLiveData<UserPOJO>()
+    val userDetail = MutableLiveData<UserPOJO>()
     private val fStore: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-    private var job=Job()
-    private val ioScope= CoroutineScope(Dispatchers.IO+job)
-
-
+    private var job = Job()
+    private val ioScope = CoroutineScope(Dispatchers.IO + job)
 
 
     fun getLocationData() = locationUpdate
 
-    private var gpsEnabled = false
-    private var networkEnabled = false
-
-    fun getUserDetail(uid:String){
+    fun getUserDetail(uid: String) {
         ioScope.launch {
-            fStore.collection(Constants.COLLECTION_CLIENT).document(uid).get().addOnSuccessListener {
-                val uid=it.get("uid").toString()
-                val name=it.get("name").toString()
-                val phoneNumber=it.get("phoneNumber").toString()
+            fStore.collection(Constants.COLLECTION_CLIENT).document(uid).get()
+                .addOnSuccessListener {
+                    val uid = it.get("uid").toString()
+                    val name = it.get("name").toString()
+                    val phoneNumber = it.get("phoneNumber").toString()
 
-                val userPOJO=UserPOJO(uid,name,phoneNumber)
-                Log.e("MainActivity", userPOJO.toString())
-                userDetail.value=userPOJO
-            }
+                    val userPOJO = UserPOJO(uid, name, phoneNumber)
+                    Log.e("MainActivity", userPOJO.toString())
+                    userDetail.value = userPOJO
+                }
         }
     }
 
-    fun isGpsOrNetworkEnabled(): Boolean {
+    fun sendNotification(pushNotification: PushNotification) =
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (isConnectedToInternet()) {
+                    val response = apiRepository.sendNotification(pushNotification)
+                    if (response.isSuccessful) {
+                        Log.e("MainActivity", "success")
+                    } else {
+                        Log.e("MainActivity", "fail")
 
-        val locationManager =
-            getApplication<SystemApplication>().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        try {
-            gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        } catch (e: Exception) {
-        }
-        try {
-            networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-        } catch (e: Exception) {
-        }
-        return gpsEnabled && networkEnabled
-    }
-
-    fun sendNotification(pushNotification: PushNotification) = viewModelScope.launch {
-        try {
-            if (isConnectedToInternet()) {
-                val response = apiRepository.sendNotification(pushNotification)
-                if (response.isSuccessful) {
-                    Log.e("MainActivity", "success")
+                    }
                 } else {
-                    Log.e("MainActivity", "fail")
 
                 }
-            } else {
+            } catch (e: Exception) {
 
             }
-        } catch (e: Exception) {
-
         }
-    }
 
-
-    fun getAllNearByGarage(lat: Double, lon: Double) = viewModelScope.launch {
+    fun getAllNearByGarage(lat: Double, lon: Double) = viewModelScope.launch(Dispatchers.Main) {
         garageList.postValue(Resource.Loading())
         try {
             if (isConnectedToInternet()) {
-                val response = apiRepository.getAllNearbyGarage(lat, lon)
-                garageList.postValue(handleGarageListResult(response))
+                withContext(Dispatchers.IO) {
+                    val response = apiRepository.getAllNearbyGarage(lat, lon)
+                    withContext(Dispatchers.Main){
+                        garageList.postValue(handleGarageListResult(response))
+                    }
+                }
             } else {
+
                 garageList.postValue(Resource.Error("No Internet Connection"))
+
             }
         } catch (t: Throwable) {
             when (t) {
-                is IOException -> garageList.postValue(Resource.Error("Network Failure"))
-                else -> garageList.postValue(Resource.Error("Conversion Error"))
+
+                is IOException -> {
+                    garageList.postValue(Resource.Error("Network Failure"))
+                }
+                else -> {
+                    garageList.postValue(Resource.Error("Conversion Error"))
+                }
             }
         }
 
@@ -129,14 +116,19 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
         }
     }
 
-    fun requestWorkshop(workshopID: String) = viewModelScope.launch {
+    fun requestWorkshop(workshopID: String) = viewModelScope.launch(Dispatchers.Main) {
         listener.onLoading()
         try {
             if (isConnectedToInternet()) {
-                val response = apiRepository.getNearByWorkshop(workshopID)
-                handleWorkshopResponse(response)
+                withContext(Dispatchers.IO) {
+                    val response = apiRepository.getNearByWorkshop(workshopID)
+                    withContext(Dispatchers.Main) {
+                        handleWorkshopResponse(response)
+                    }
+                }
 
             } else {
+
                 listener.onError("No Internet connection")
             }
 

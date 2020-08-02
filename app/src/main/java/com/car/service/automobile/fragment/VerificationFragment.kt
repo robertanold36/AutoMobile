@@ -13,6 +13,7 @@ import com.car.service.automobile.R
 import com.car.service.automobile.databinding.FragmentVerificationBinding
 import com.car.service.automobile.login.LoginActivity
 import com.car.service.automobile.login.LoginViewModel
+import com.car.service.automobile.main.ui.HomeActivity
 import com.car.service.automobile.main.ui.MainActivity
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -147,7 +148,7 @@ class VerificationFragment : Fragment() {
                         }
                         withContext(Dispatchers.Main) {
                                 Toast.makeText(activity, "Successfully Login", Toast.LENGTH_LONG).show()
-                                val intent = Intent(activity, MainActivity::class.java)
+                                val intent = Intent(activity, HomeActivity::class.java)
                                 startActivity(intent)
                                 activity?.finish()
                         }
@@ -162,7 +163,7 @@ class VerificationFragment : Fragment() {
                 }
 
             } else {
-                Toast.makeText(activity, "Fail To Sign In", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Fail To Sign In", Toast.LENGTH_LONG).show()
             }
         }
     }

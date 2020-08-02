@@ -16,23 +16,10 @@ class NetworkUtility {
         @TargetApi(29)
         fun isPermissionGranted(context: Context): Boolean {
 
-            val foregroundLocationPermission =
-                (PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ))
-
-
-            val backgroundLocationPermission = if (runningQorLater) {
-                (PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ))
-            } else {
-                true
-            }
-
-            return foregroundLocationPermission && backgroundLocationPermission
+            return (PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ))
 
         }
     }

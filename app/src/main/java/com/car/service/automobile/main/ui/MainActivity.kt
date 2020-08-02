@@ -1,25 +1,18 @@
 package com.car.service.automobile.main.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -36,20 +29,12 @@ import com.car.service.automobile.utility.Constants.Companion.COLLECTION
 import com.car.service.automobile.utility.Constants.Companion.EMAIL
 import com.car.service.automobile.utility.Constants.Companion.TOKEN
 import com.car.service.automobile.utility.Listener
-import com.car.service.automobile.utility.NetworkUtility.Companion.isPermissionGranted
 import com.car.service.automobile.utility.Resource
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -71,8 +56,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     private var checkedItem = 1
     lateinit var binding: com.car.service.automobile.databinding.ActivityMainBinding
     lateinit var mapFragment: SupportMapFragment
-    private val runningQorLater =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     lateinit var coordinatorLayout: CoordinatorLayout
 
@@ -108,59 +91,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         bottomSheetBehavior.peekHeight = 0
 
 
-        btn_problem.setOnClickListener {
-            if (isPermissionGranted(this)) {
-                if (mainViewModel.isGpsOrNetworkEnabled()) {
-
-                    observeWorkshops()
-
-                } else {
-                    checkLocationSettings()
-                }
-            } else {
-                requestLocationPermission()
-            }
+        btn_request.setOnClickListener {
+            observeWorkshops()
         }
-
-
-    }
-
-    override fun onStart() {
-        super.onStart()
-        if (isPermissionGranted(this)) {
-            checkLocationSettings()
-        } else {
-            requestLocationPermission()
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
-    ) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            REQUEST_TURN_DEVICE_LOCATION_ON -> {
-                checkLocationSettings(false)
-                when (resultCode) {
-                    Activity.RESULT_OK -> {
-                        Log.e(TAG, "location setting enabled")
-                    }
-                    Activity.RESULT_CANCELED -> {
-                        Snackbar.make(
-                            coordinatorLayout,
-                            "Please Turn On Device Location",
-                            Snackbar.LENGTH_INDEFINITE
-                        ).setAction("Ok") {
-                            checkLocationSettings()
-                        }.show()
-                    }
-                }
-            }
-        }
-
     }
 
     @SuppressLint("MissingPermission")
@@ -171,104 +104,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         setMapStyle(map)
     }
 
-    @SuppressLint("MissingPermission")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-
-        if (grantResults.isEmpty() ||
-            grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
-            (requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_RESULT_CODE &&
-                    grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX]
-                    == PackageManager.PERMISSION_DENIED)
-        ) {
-            Snackbar.make(
-                activity_main,
-                "Please allow location permission",
-                Snackbar.LENGTH_INDEFINITE
-            ).setAction("Allow") {
-                requestLocationPermission()
-            }.show()
-
-        } else {
-            checkLocationSettings()
-        }
-    }
-
-
-    @TargetApi(29)
-    fun requestLocationPermission() {
-        if (isPermissionGranted(this))
-            return
-
-        var permissionArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        val resultCode = when {
-            runningQorLater -> {
-                permissionArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                REQUEST_FOREGROUND_AND_BACKGROUND_RESULT_CODE
-            }
-            else -> {
-                REQUEST_FOREGROUND_AND_BACKGROUND_REQUEST_CODE
-            }
-        }
-
-        ActivityCompat.requestPermissions(
-            this@MainActivity,
-            permissionArray,
-            resultCode
-        )
-    }
-
-    @SuppressLint("MissingPermission")
-    fun checkLocationSettings(resolve: Boolean = true) {
-        val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_LOW_POWER
-        }
-
-        val builder =
-            LocationSettingsRequest.Builder().addLocationRequest(locationRequest).setNeedBle(true)
-        val task: Task<LocationSettingsResponse> =
-            LocationServices.getSettingsClient(this)
-                .checkLocationSettings(builder.build())
-
-
-
-        task.addOnFailureListener { exception ->
-
-            if (exception is ResolvableApiException && resolve) {
-                try {
-
-                    exception.startResolutionForResult(
-                        this,
-                        REQUEST_TURN_DEVICE_LOCATION_ON
-                    )
-                } catch (e: ApiException) {
-                    Log.d(TAG, "System fail to access your location")
-                }
-            } else {
-                Log.e(TAG, "result cancelled")
-                Toast.makeText(this, "result canceled", Toast.LENGTH_SHORT).show()
-
-                Snackbar.make(
-                    coordinatorLayout,
-                    "Please Turn On Device location",
-                    Snackbar.LENGTH_INDEFINITE
-                ).setAction("Ok") {
-                    checkLocationSettings()
-                }.show()
-            }
-        }
-
-        task.addOnCompleteListener {
-            if (it.isSuccessful) {
-                Log.e(TAG, "Location setting are enabled to true")
-                getNearbyGarage()
-            }
-        }
-
-    }
 
     private fun createMarker(context: Context, vectorIcon: Int): BitmapDescriptor {
         val vectorDrawable: Drawable? = ContextCompat.getDrawable(context, vectorIcon)
@@ -309,7 +144,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     private fun getNearbyGarage() {
         mainViewModel.garageList.observe(this, Observer { response ->
             when (response) {
+                is Resource.Loading->{
+                    progressBar2.visibility=View.VISIBLE
+                }
                 is Resource.Success -> {
+                    progressBar2.visibility=View.INVISIBLE
                     response.data.let { garageList ->
                         if (garageList != null) {
                             val results = garageList.result
@@ -331,6 +170,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
                     }
                 }
                 is Resource.Error -> {
+                    progressBar2.visibility=View.INVISIBLE
                     response.message.let {
                         if (it != null) {
                             Snackbar.make(coordinatorLayout, it, Snackbar.LENGTH_INDEFINITE)
@@ -350,11 +190,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
-        if (isPermissionGranted(this)) {
-            map.isMyLocationEnabled = true
-        } else {
-            requestLocationPermission()
-        }
+        map.isMyLocationEnabled = true
+        getNearbyGarage()
+
     }
 
     private fun moveCamera() {
@@ -436,12 +274,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     private fun requestWorkshop(garageResult: GarageResult) {
 
-
         try {
             var selected: String? = null
             val carModel = resources.getStringArray(R.array.carModel)
 
-            val alertDialog = AlertDialog.Builder(applicationContext)
+            val alertDialog = AlertDialog.Builder(this)
             alertDialog.setTitle("Car Model")
             alertDialog.setCancelable(false)
 
@@ -546,8 +383,3 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
 }
 
-private const val REQUEST_FOREGROUND_AND_BACKGROUND_RESULT_CODE = 33
-private const val REQUEST_FOREGROUND_AND_BACKGROUND_REQUEST_CODE = 34
-private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
-private const val LOCATION_PERMISSION_INDEX = 0
-private const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1

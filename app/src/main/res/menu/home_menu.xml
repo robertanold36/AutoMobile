@@ -22,4 +22,8 @@
         android:id="@+id/rate"
         android:title="Rate"/>
 
+    <item
+        android:id="@+id/contact"
+        android:title="Contact us"/>
+
 </menu>
