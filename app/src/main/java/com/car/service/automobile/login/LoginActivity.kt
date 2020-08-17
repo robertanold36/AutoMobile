@@ -14,6 +14,8 @@ import com.car.service.automobile.databinding.ActivityLoginBinding
 import com.car.service.automobile.main.ui.HomeActivity
 import com.car.service.automobile.main.ui.MainActivity
 import com.car.service.automobile.repository.ApiRepository
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
@@ -41,10 +43,11 @@ class LoginActivity : AppCompatActivity() {
         super.onStart()
         if(mAuth.currentUser!=null){
             val intent=Intent(this,
-                HomeActivity::class.java)
+                MainActivity::class.java)
             startActivity(intent)
             finish()
         }
     }
-    
+
+
 }

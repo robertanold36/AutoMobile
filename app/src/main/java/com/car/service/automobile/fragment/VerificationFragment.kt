@@ -148,7 +148,7 @@ class VerificationFragment : Fragment() {
                         }
                         withContext(Dispatchers.Main) {
                                 Toast.makeText(activity, "Successfully Login", Toast.LENGTH_LONG).show()
-                                val intent = Intent(activity, HomeActivity::class.java)
+                                val intent = Intent(activity, MainActivity::class.java)
                                 startActivity(intent)
                                 activity?.finish()
                         }

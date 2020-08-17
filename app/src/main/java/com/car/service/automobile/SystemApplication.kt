@@ -6,7 +6,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 class SystemApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+        FirebaseMessaging.getInstance().isAutoInitEnabled = true;
 
     }
 }

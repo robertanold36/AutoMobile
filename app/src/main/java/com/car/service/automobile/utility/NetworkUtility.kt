@@ -4,10 +4,8 @@ import android.Manifest
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.core.app.ActivityCompat
-private val runningQorLater =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
 
 
 class NetworkUtility {
@@ -22,6 +20,7 @@ class NetworkUtility {
             ))
 
         }
+
     }
 
 }

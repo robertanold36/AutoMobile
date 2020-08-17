@@ -3,6 +3,7 @@ package com.car.service.automobile.main
 
 import android.app.Application
 import android.content.Context
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.*
 import android.net.NetworkCapabilities.*
@@ -32,12 +33,15 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
     val garageList: MutableLiveData<Resource<GarageResult>> = MutableLiveData()
     var garageListResponse: GarageResult? = null
     lateinit var listener: Listener
-    val userDetail = MutableLiveData<UserPOJO>()
+    val userDetail:MutableLiveData<UserPOJO> = MutableLiveData()
     private val fStore: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
     private var job = Job()
     private val ioScope = CoroutineScope(Dispatchers.IO + job)
+    private val TAG = "MainActivity"
+    private var gpsEnabled = false
+    private var networkEnabled = false
 
 
     fun getLocationData() = locationUpdate
@@ -182,6 +186,24 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
             }
         }
         return false
+    }
+
+     fun isGpsOrNetworkEnabled(): Boolean {
+
+        val locationManager =
+            getApplication<SystemApplication>().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        try {
+            gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        } catch (e: Exception) {
+            Log.e(TAG,"Fail to access gps location $e")
+        }
+        try {
+            networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+        } catch (e: Exception) {
+            Log.e(TAG,"Fail to access network location $e")
+        }
+        return gpsEnabled && networkEnabled
     }
 
     override fun onCleared() {
