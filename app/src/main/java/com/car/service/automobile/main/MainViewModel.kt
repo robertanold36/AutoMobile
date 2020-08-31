@@ -121,6 +121,7 @@ class MainViewModel(private val apiRepository: ApiRepository, app: Application) 
     }
 
     fun requestWorkshop(workshopID: String) = viewModelScope.launch(Dispatchers.Main) {
+
         listener.onLoading()
         try {
             if (isConnectedToInternet()) {

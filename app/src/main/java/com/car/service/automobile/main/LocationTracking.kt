@@ -51,7 +51,6 @@ class LocationTracking(context: Context) : MutableLiveData<LatLongitude>() {
 
     }
 
-
     @SuppressLint("MissingPermission")
     override fun onActive() {
         super.onActive()

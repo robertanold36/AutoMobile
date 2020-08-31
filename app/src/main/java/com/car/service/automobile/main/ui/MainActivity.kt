@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity(), Listener, OnMapReadyCallback {
     lateinit var mapFragment: SupportMapFragment
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     lateinit var coordinatorLayout: CoordinatorLayout
+    private var workshopId: String = ""
 
     private val fStore: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
@@ -425,21 +426,23 @@ class MainActivity : AppCompatActivity(), Listener, OnMapReadyCallback {
     }
 
     private fun requestWorkshop(selected: String, category: String) {
-
         try {
             mainViewModel.garageList.observe(this, Observer { resource ->
                 when (resource) {
                     is Resource.Success -> {
                         resource.data.let { garageResult ->
                             if (garageResult != null) {
+                                var i = 0
                                 for (workshopData in garageResult.result) {
+                                    val size = garageResult.result.size
                                     if (workshopData.category == category && workshopData.VehicleBrands.contains(
                                             selected
                                         )
                                     ) {
                                         CoroutineScope(Dispatchers.IO).launch {
                                             Log.e(TAG, workshopData.toString())
-                                            mainViewModel.requestWorkshop(workshopData.workshopID)
+                                            workshopId = workshopData.workshopID
+                                            mainViewModel.requestWorkshop(workshopId)
 
                                             withContext(Dispatchers.Main) {
 
@@ -457,7 +460,20 @@ class MainActivity : AppCompatActivity(), Listener, OnMapReadyCallback {
                                         }
                                         break
                                     }
+
+                                    if (i == size - 1 &&
+                                        !(workshopData.category == category
+                                                && workshopData.VehicleBrands.contains(selected))
+                                    ) {
+                                        Snackbar.make(
+                                            coordinatorLayout,
+                                            "Can't fix your car type",
+                                            Snackbar.LENGTH_LONG
+                                        ).show()
+                                    }
+                                    i++
                                 }
+
                             } else {
                                 Snackbar.make(
                                     coordinatorLayout,
