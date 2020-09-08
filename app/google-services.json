@@ -1,4 +1,3 @@
-
 {
   "project_info": {
     "project_number": "728265936756",
@@ -12,6 +11,51 @@
         "mobilesdk_app_id": "1:728265936756:android:dee4a996b7c0d7fa086621",
         "android_client_info": {
           "package_name": "com.car.service.automobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "728265936756-bqd1kuvvvkesu58oue9rabns9eot76e2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.car.service.automobile",
+            "certificate_hash": "dbe2eadc1f4f3e60a2eee08984a1463cad28367a"
+          }
+        },
+        {
+          "client_id": "728265936756-b6rs29a7cvu2p3giebotg3f2dbr9anr9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.car.service.automobile",
+            "certificate_hash": "2d64d1fd82c46f305c4ac8ed1c64763c785c99c9"
+          }
+        },
+        {
+          "client_id": "728265936756-k61htf0kuju79inm5vfkaftugjn701bq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm1tZ1Br5z8SnMEHaqBk92pR4FdIeip6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "728265936756-k61htf0kuju79inm5vfkaftugjn701bq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:728265936756:android:a59d3f01172a3685086621",
+        "android_client_info": {
+          "package_name": "com.car.service.carservice"
         }
       },
       "oauth_client": [
